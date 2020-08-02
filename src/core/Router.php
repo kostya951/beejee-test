@@ -12,15 +12,24 @@ class Router
         $use_default_method = false;
 
         //маршруты из запроса
-        $routes = explode('/',$_SERVER['REQUEST_URI']);
-        $controller_name = $routes[1];
-        $method_name = $routes[2];
+        $without_webroot = Application::$config['webroot']!='/'
+            ? str_replace(Application::$config['webroot'],'',$_SERVER['REQUEST_URI'])
+            : $_SERVER['REQUEST_URI'];
+        if($without_webroot!=Application::$config['webroot']) {
+            $delim_get_params = explode('?', $without_webroot);
+            $routes = explode('/', $delim_get_params[0]);
+            $controller_name = $routes[1];
+            $method_name = $routes[2];
 
-        if($controller_name==null){
+            if ($controller_name == null) {
+                $use_deafult_controller = true;
+            }
+
+            if ($method_name == null) {
+                $use_default_method = true;
+            }
+        }else{
             $use_deafult_controller=true;
-        }
-
-        if($method_name==null){
             $use_default_method=true;
         }
 

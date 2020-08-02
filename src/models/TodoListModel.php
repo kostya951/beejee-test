@@ -8,29 +8,27 @@ class TodoListModel extends Model
      */
     public $todoList= [];
 
-    public function validate()
-    {
-        // TODO: Implement validate() method.
-    }
-
     public function save()
     {
-        // TODO: Implement save() method.
+        // Не понадобилось сохранять список моделей
     }
 
     public function load($params = [])
     {
-        $order_statement='ORDER BY id';
+        $order_statement='';
         if(isset($params['order_by'])){
-           $orders = $params['order_by'];
-           foreach ($orders as $field=>$direction){
-            $order_statement=$order_statement.",{$field} {$direction}";
-           }
+            $order_statement='ORDER BY';
+            $orders = $params['order_by'];
+            foreach ($orders as $field=>$direction){
+                $order_statement=$order_statement." {$field} {$direction},";
+            }
         }
+        $order_statement=substr($order_statement,0,-1);
         $sql=<<<sql
 SELECT * FROM todo
 {$order_statement}
 sql;
+
         $result_set = mysqli_query(Application::$db_connection,$sql);
 
         while($row=mysqli_fetch_array($result_set)){
@@ -40,6 +38,7 @@ sql;
             $model->description=$row['description'];
             $model->status=$row['status'];
             $model->username=$row['username'];
+            $model->updated_by_admin=$row['updated_by_admin'];
             $this->todoList[] = $model;
         }
     }
